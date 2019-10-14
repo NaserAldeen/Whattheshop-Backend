@@ -1,15 +1,29 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Product, Category
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Add custom claims
+        token['username'] = user.username
+        return token
+
+
 class ProductListSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         many=False,
         read_only=True,
         slug_field='name'
-     )
+    )
+
     class Meta:
         model = Product
-        exclude = ['description',]
+        exclude = ['description', ]
+
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,6 +33,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
         fields = ['username', 'password']
