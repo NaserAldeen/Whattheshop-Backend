@@ -38,10 +38,16 @@ class CartItemCreateView(CreateAPIView):
 	serializer_class = CartItemCreateSerializer
 
 class CheckoutView(APIView):
-	# permissions=[IsAuthenticated]
 	def get(self, request, format=None):
+		if request.user.is_anonymous:
+			return Response("What are you doing bro?")
 		cart=Cart.objects.get(status=False, profile=request.user.profile)
 		if len(cart.products.all())>0:
+			for cart_item in cart.products.all():
+				product_id = cart_item.item.id
+				prod = Product.objects.get(id=product_id)
+				prod.quantity = prod.quantity-cart_item.quantity
+				prod.save()
 			cart.status = True
 			cart.save()
 			Cart.objects.create(profile=request.user.profile)
