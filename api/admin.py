@@ -1,8 +1,17 @@
 from django.contrib import admin
 from .models import Category, Product, Profile, Cart, CartItem
 
+
+class CartItemInline(admin.TabularInline):
+	model = CartItem
+
+class CartAdmin(admin.ModelAdmin):
+	list_display=('profile','status')
+	inlines = [
+		CartItemInline,
+	]
+
 admin.site.register(Category)
 admin.site.register(Product)
 admin.site.register(Profile)
-admin.site.register(Cart)
-admin.site.register(CartItem)
+admin.site.register(Cart, CartAdmin)
