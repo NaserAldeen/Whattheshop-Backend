@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-
 class Category(models.Model):
     name = models.CharField(max_length=50)
     image = models.ImageField(blank=True)
@@ -44,7 +43,6 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class CartItem(models.Model):
     item = models.ForeignKey(
