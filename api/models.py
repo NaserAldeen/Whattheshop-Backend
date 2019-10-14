@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
+
 class Category(models.Model):
     name = models.CharField(max_length=50)
     image = models.ImageField(blank=True)
@@ -19,24 +20,24 @@ class Profile(models.Model):
     gender = models.CharField(max_length=10)
     image = models.ImageField(blank=True, null=True)
 
-
     def __str__(self):
         return self.user.username
 
 
 class Cart(models.Model):
-    profile = models.ForeignKey(
-        Profile, related_name='cart', on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, related_name='carts', on_delete=models.CASCADE, blank=True)
+    #change to completed
     status = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.profile.user.username
+        return self.profile.user.username + str(self.id)
 
 
 class Product(models.Model):
     price = models.PositiveIntegerField()
     name = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField()
+    #create a model for manu and make it foreignKey
     manufacturer = models.CharField(max_length=50)
     description = models.TextField()
     image = models.ImageField(blank=True, null=True)
@@ -47,8 +48,9 @@ class Product(models.Model):
         return self.name
 
 class CartItem(models.Model):
+	#Change related name for both to cart_items
     item = models.ForeignKey(
-        Product, related_name="orders", on_delete=models.CASCADE)
+        Product, related_name="orders", on_delete=models.CASCADE, blank=True, null=True)
     cart = models.ForeignKey(
         Cart, related_name="products", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
@@ -62,4 +64,4 @@ class CartItem(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
-        Cart.objects.create(profile=instance.profile)
+        # Cart.objects.create(profile=instance.profile)
