@@ -5,7 +5,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
-    print("mi")
     serializer_class = MyTokenObtainPairSerializer
 
 
