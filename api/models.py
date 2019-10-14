@@ -10,8 +10,10 @@ class Category(models.Model):
 	def __str__(self):
 		return self.name
 
+
 class Profile(models.Model):
-	user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
+	user = models.OneToOneField(
+		User, related_name='profile', on_delete=models.CASCADE)
 	bio = models.TextField()
 	phone_num = models.CharField(max_length=8)
 	gender = models.CharField(max_length=10)
@@ -20,11 +22,14 @@ class Profile(models.Model):
 	def __str__(self):
 		return self.user.username
 
+
 class Cart(models.Model):
-	profile = models.ForeignKey(Profile, related_name='orders', on_delete=models.CASCADE)
+	profile = models.ForeignKey(
+		Profile, related_name='cart', on_delete=models.CASCADE)
 
 	def __str__(self):
 		return self.profile.user.username
+
 
 class Product(models.Model):
 	price = models.PositiveIntegerField()
@@ -33,12 +38,14 @@ class Product(models.Model):
 	manufacturer = models.CharField(max_length=50)
 	description = models.TextField()
 	image = models.ImageField(blank=True, null=True)
-	category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE)
+	category = models.ForeignKey(
+		Category, related_name="products", on_delete=models.CASCADE)
 
 	def __str__(self):
 		return self.name
 
 class CartItem(models.Model):
+<<<<<<< HEAD
 	item = models.ForeignKey(Product, related_name="orders",on_delete=models.CASCADE)
 	cart = models.ForeignKey(Cart, related_name="products", on_delete=models.CASCADE)
 
