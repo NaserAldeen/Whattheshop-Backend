@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 class Category(models.Model):
 	name = models.CharField(max_length=50)
@@ -19,7 +21,7 @@ class Profile(models.Model):
 		return self.user.username
 
 class Cart(models.Model):
-	profile = models.OneToOneField(Profile, related_name='cart', on_delete=models.CASCADE)
+	profile = models.ForeignKey(Profile, related_name='orders', on_delete=models.CASCADE)
 
 	def __str__(self):
 		return self.profile.user.username
@@ -37,8 +39,15 @@ class Product(models.Model):
 		return self.name
 
 class CartItem(models.Model):
-	item = models.OneToOneField(Product, on_delete=models.CASCADE)
+	item = models.ForeignKey(Product, related_name="orders",on_delete=models.CASCADE)
 	cart = models.ForeignKey(Cart, related_name="products", on_delete=models.CASCADE)
 
 	def __str__(self):
 		return self.item.name
+
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+	if created:
+		Profile.objects.create(user=instance)
