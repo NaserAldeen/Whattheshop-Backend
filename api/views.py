@@ -26,13 +26,19 @@ class ProductDetailView(RetrieveAPIView):
 	lookup_field = 'id'
 	lookup_url_kwarg = 'product_id'
 
-class CartListView(ListAPIView):
-
+class PreviousOrdersListView(ListAPIView):
 	serializer_class=CartListSerializer
 	permissions=[IsAuthenticated]
 
 	def get_queryset(self):
-		return Cart.objects.filter(profile=self.request.user.profile)
+		return Cart.objects.filter(profile=self.request.user.profile, completed=False)
+
+class UserCart(ListAPIView):
+	serializer_class=CartListSerializer
+	permissions=[IsAuthenticated]
+
+	def get_queryset(self):
+		return Cart.objects.filter(profile=self.request.user.profile, completed=True)
 
 class CartItemCreateView(APIView):
 	
@@ -45,7 +51,7 @@ class CartItemCreateView(APIView):
 		product_id = int(validated_data["item"])
 		quantity = int(validated_data['quantity'])
 
-		cart, created = Cart.objects.get_or_create(profile=request.user.profile, status=False)
+		cart, created = Cart.objects.get_or_create(profile=request.user.profile, completed=False)
 		# cart_item, created2 = CartItem.objects.get_or_create(item__id=product_id, cart=cart)
 		cart_item = CartItem.objects.filter(item__id=product_id, cart=cart)
 		if quantity == 0:
@@ -77,7 +83,7 @@ class CheckoutView(APIView):
 	def get(self, request, format=None):
 		if request.user.is_anonymous:
 			return Response("What are you doing bro?")
-		cart=Cart.objects.filter(status=False, profile=request.user.profile)
+		cart=Cart.objects.filter(completed=False, profile=request.user.profile)
 		if not cart: return Response("What are you doing bro? You can't checkout when you don't have items in your cart!")
 		cart=cart[0]
 		if cart.products.all().exists():
@@ -85,7 +91,7 @@ class CheckoutView(APIView):
 				prod = cart_item.item
 				prod.quantity = prod.quantity-cart_item.quantity
 				prod.save()
-			cart.status = True
+			cart.completed = True
 			cart.save()
 			# Cart.objects.create(profile=request.user.profile)
 			return Response("Checked out successfully!")
