@@ -55,7 +55,7 @@ class CartListSerializer(serializers.ModelSerializer):
 class CartItemCreateSerializer(serializers.ModelSerializer):
     class Meta: 
         model = CartItem
-        fields = "__all__"
+        exclude = ["cart"]
 
 
 # class CartCreateSerializer(serializers.)
