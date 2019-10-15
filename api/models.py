@@ -25,9 +25,9 @@ class Profile(models.Model):
 
 
 class Cart(models.Model):
-    profile = models.ForeignKey(Profile, related_name='carts', on_delete=models.CASCADE, blank=True)
+    profile = models.ForeignKey(Profile, related_name='carts', on_delete=models.CASCADE, blank=True, null=True)
     #change to completed
-    status = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.profile.user.username + str(self.id)
@@ -50,9 +50,9 @@ class Product(models.Model):
 class CartItem(models.Model):
 	#Change related name for both to cart_items
     item = models.ForeignKey(
-        Product, related_name="orders", on_delete=models.CASCADE, blank=True, null=True)
+        Product, related_name="cart_items", on_delete=models.CASCADE, blank=True, null=True)
     cart = models.ForeignKey(
-        Cart, related_name="products", on_delete=models.CASCADE)
+        Cart, related_name="cart_items", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
 
