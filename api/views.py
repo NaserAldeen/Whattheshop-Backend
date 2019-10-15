@@ -38,28 +38,38 @@ class CartItemCreateView(APIView):
 	
 
 	def post(self, request, format=None):
+		if (request.user.is_anonymous):
+			return Response("Please login in order to add to your cart")
 
 		validated_data = request.data
-		cart_id = int(validated_data['cart'])
 		product_id = int(validated_data["item"])
 		quantity = int(validated_data['quantity'])
 
-		cart, created1 = Cart.objects.get_or_create(profile__user=request.user, status=False)
-		cart_item, created2 = CartItem.objects.get_or_create(item__id=product_id, cart=cart)
+		cart, created = Cart.objects.get_or_create(profile=request.user.profile, status=False)
+		# cart_item, created2 = CartItem.objects.get_or_create(item__id=product_id, cart=cart)
+		cart_item = CartItem.objects.filter(item__id=product_id, cart=cart)
+		if quantity == 0:
+			if not cart_item.exists():
+				return Response("You can't add 0 products to the cart!")
+			elif cart_item.exists():
+				cart_item.delete() 
+				return Response("Item deleted")
+		elif quantity > 0:	
+			if created:
+				cart.profile = request.user.profile
+				cart.save()
+
+			if not cart_item.exists():
+				cart_item = CartItem.objects.create(item=Product.objects.get(id=product_id), cart=cart, quantity=int(validated_data['quantity']))
+			else:
+				cart_item = cart_item[0]
+				cart_item.quantity = quantity
+				cart_item.save()
+			return Response(CartItemCreateSerializer(cart_item).data)
 		
-		if created1:
-			cart.profile = request.user.profile
-			cart.save()
-		if created2:
-			cart_item.item = Product.objects.get(id=product_id)
-			cart_item.cart = cart
-		elif quantity == 0:
-			cart_item.delete() 
-			return Response("Item deleted")
 		
-		cart_item.quantity = int(validated_data['quantity'])
-		cart_item.save()
-		return Response("Item created/updated")
+
+		
 	
 
 
@@ -67,7 +77,9 @@ class CheckoutView(APIView):
 	def get(self, request, format=None):
 		if request.user.is_anonymous:
 			return Response("What are you doing bro?")
-		cart=Cart.objects.get(status=False, profile=request.user.profile)
+		cart=Cart.objects.filter(status=False, profile=request.user.profile)
+		if not cart: return Response("What are you doing bro? You can't checkout when you don't have items in your cart!")
+		cart=cart[0]
 		if cart.products.all().exists():
 			for cart_item in cart.products.all():
 				prod = cart_item.item
