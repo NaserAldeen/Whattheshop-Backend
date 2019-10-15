@@ -31,14 +31,14 @@ class PreviousOrdersListView(ListAPIView):
 	permissions=[IsAuthenticated]
 
 	def get_queryset(self):
-		return Cart.objects.filter(profile=self.request.user.profile, completed=False)
+		return Cart.objects.filter(profile=self.request.user.profile, completed=True)
 
 class UserCart(ListAPIView):
 	serializer_class=CartListSerializer
 	permissions=[IsAuthenticated]
 
 	def get_queryset(self):
-		return Cart.objects.filter(profile=self.request.user.profile, completed=True)
+		return Cart.objects.filter(profile=self.request.user.profile, completed=False)
 
 class CartItemCreateView(APIView):
 	
