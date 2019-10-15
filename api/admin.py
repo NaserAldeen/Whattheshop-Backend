@@ -34,7 +34,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 class ProfileAdmin(admin.ModelAdmin):
-	list_display = ('user','bio','phone_num','gender')
+	list_display = ('user','bio','phone_number','gender')
 
 
 admin.site.register(Category, CategoryAdmin)
