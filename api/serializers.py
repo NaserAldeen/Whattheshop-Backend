@@ -18,7 +18,11 @@ class ProductListSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='name'
     )
-
+    manufacturer = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='name'
+    )
     class Meta:
         model = Product
         exclude = ['description', ]
@@ -26,6 +30,11 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='name'
+    )
+    manufacturer = serializers.SlugRelatedField(
         many=False,
         read_only=True,
         slug_field='name'

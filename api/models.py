@@ -16,10 +16,22 @@ class Category(models.Model):
 
 
 class Profile(models.Model):
+	MALE = 'M'
+	FEMALE = 'F'
+	OTHER = 'O'
+	GENDER_CHOICES = [
+		(MALE, 'Male'),
+		(FEMALE, 'Female'),
+		(OTHER, 'Other'),
+	]
 	user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
-	bio = models.TextField()
-	phone_number = models.CharField(max_length=8)
-	gender = models.CharField(max_length=10)
+	bio = models.TextField(blank=True)
+	phone_number = models.CharField(max_length=8, blank=True)
+	gender = models.CharField(
+		max_length=2,
+		choices=GENDER_CHOICES,
+		default=MALE,
+	)
 	image = models.ImageField(blank=True, null=True)
 
 	def __str__(self):
@@ -38,16 +50,21 @@ class Cart(models.Model):
 		return self.profile.user.username
 
 
+class Manufacturer(models.Model):
+	name = models.CharField(max_length=50)
+
+	def __str__(self):
+		return self.name
+
+
 class Product(models.Model):
-	price = models.PositiveIntegerField()
 	name = models.CharField(max_length=100)
+	price = models.PositiveIntegerField()
 	quantity = models.PositiveIntegerField()
-	#create a model for manu and make it foreignKey
-	manufacturer = models.CharField(max_length=50)
 	description = models.TextField()
 	image = models.ImageField(blank=True, null=True)
-	category = models.ForeignKey(
-		Category, related_name="products", on_delete=models.CASCADE)
+	category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE)
+	manufacturer = models.ForeignKey(Manufacturer, related_name="products", on_delete=models.CASCADE)
 
 	def update_quantity(self, quantity):
 		self.quantity += quantity
@@ -57,11 +74,10 @@ class Product(models.Model):
 		return self.name
 
 
+
 class CartItem(models.Model):
-	item = models.ForeignKey(
-		Product, related_name="cart_items", on_delete=models.CASCADE, blank=True, null=True)
-	cart = models.ForeignKey(
-		Cart, related_name="cart_items", on_delete=models.CASCADE)
+	item = models.ForeignKey(Product, related_name="cart_items", on_delete=models.CASCADE, blank=True, null=True)
+	cart = models.ForeignKey(Cart, related_name="cart_items", on_delete=models.CASCADE)
 	quantity = models.PositiveIntegerField(default=1)
 
 	def __str__(self):
