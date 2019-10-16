@@ -12,6 +12,17 @@ class ProductInline(admin.TabularInline):
 	extra = 1
 
 
+	def get_extra(self, request, obj=None, **kwargs):
+		return 1
+
+
+class ProductInline(admin.TabularInline):
+	model = Product
+
+	def get_extra(self, request, obj=None, **kwargs):
+		return 1
+
+
 class CartAdmin(admin.ModelAdmin):
 	list_display = ('profile','completed')
 	list_filter = ['completed', ]
@@ -19,7 +30,7 @@ class CartAdmin(admin.ModelAdmin):
 		CartItemInline,
 	]
 
-
+  
 class ProductAdmin(admin.ModelAdmin):
 	list_display = ('name', 'price', 'quantity','manufacturer')
 	list_filter = ['category']
