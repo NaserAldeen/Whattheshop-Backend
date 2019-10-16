@@ -12,20 +12,9 @@ class ProductInline(admin.TabularInline):
 	extra = 1
 
 
-	def get_extra(self, request, obj=None, **kwargs):
-		return 1
-
-
-class ProductInline(admin.TabularInline):
-	model = Product
-
-	def get_extra(self, request, obj=None, **kwargs):
-		return 1
-
-
 class CartAdmin(admin.ModelAdmin):
 	list_display = ('profile','completed')
-	list_filter = ['completed', ]
+	list_filter = ('completed', )
 	inlines = [
 		CartItemInline,
 	]
@@ -33,11 +22,11 @@ class CartAdmin(admin.ModelAdmin):
   
 class ProductAdmin(admin.ModelAdmin):
 	list_display = ('name', 'price', 'quantity','manufacturer')
-	list_filter = ['category']
+	list_filter = ('category',)
 
 
 class ProfileAdmin(admin.ModelAdmin):
-	list_display = ('user', 'phone_num','gender')
+	list_display = ('user', 'phone_number','gender')
 
 
 admin.site.register(Category)
