@@ -25,8 +25,8 @@ class Profile(models.Model):
 		(OTHER, 'Other'),
 	]
 	user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
-	bio = models.TextField()
-	phone_number = models.CharField(max_length=8)
+	bio = models.TextField(blank=True)
+	phone_number = models.CharField(max_length=8, blank=True)
 	gender = models.CharField(
 		max_length=2,
 		choices=GENDER_CHOICES,
@@ -50,20 +50,21 @@ class Cart(models.Model):
 		return self.profile.user.username
 
 
-# class Manufacturer(models.Model):
-# 	name = models.CharField(max_length=50)
+class Manufacturer(models.Model):
+	name = models.CharField(max_length=50)
 
-# 	def __str__(self):
-# 		return self.name
+	def __str__(self):
+		return self.name
 
 
 class Product(models.Model):
-	price = models.PositiveIntegerField()
 	name = models.CharField(max_length=100)
+	price = models.PositiveIntegerField()
 	quantity = models.PositiveIntegerField()
 	description = models.TextField()
 	image = models.ImageField(blank=True, null=True)
 	category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE)
+	manufacturer = models.ForeignKey(Manufacturer, related_name="products", on_delete=models.CASCADE)
 
 	def update_quantity(self, quantity):
 		self.quantity += quantity

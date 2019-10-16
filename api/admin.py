@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Profile, Cart, CartItem
+from .models import Category, Product, Profile, Cart, CartItem, Manufacturer
 
 
 class CartItemInline(admin.TabularInline):
@@ -20,9 +20,9 @@ class CartAdmin(admin.ModelAdmin):
 	]
 
   
-# class ProductAdmin(admin.ModelAdmin):
-# 	list_display = ('name', 'price', 'quantity',)
-# 	list_filter = ('category',)
+class ProductAdmin(admin.ModelAdmin):
+	list_display = ('name', 'price', 'quantity',)
+	list_filter = ('category', 'manufacturer')
 
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -30,7 +30,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Category)
-admin.site.register(Product, )
+admin.site.register(Product, ProductAdmin)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Cart, CartAdmin)
-# admin.site.register(Manufacturer)
+admin.site.register(Manufacturer)
