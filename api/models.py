@@ -8,6 +8,9 @@ class Category(models.Model):
     name = models.CharField(max_length=50)
     image = models.ImageField(blank=True)
 
+    class Meta:
+        verbose_name_plural = "categories"
+
     def __str__(self):
         return self.name
 
@@ -26,11 +29,14 @@ class Profile(models.Model):
 
 class Cart(models.Model):
     profile = models.ForeignKey(Profile, related_name='carts', on_delete=models.CASCADE, blank=True, null=True)
-    #change to completed
     completed = models.BooleanField(default=False)
 
+    def complete(self):
+        self.completed = True
+        self.save()
+
     def __str__(self):
-        return self.profile.user.username + str(self.id)
+        return self.profile.user.username
 
 
 class Product(models.Model):
@@ -44,17 +50,19 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category, related_name="products", on_delete=models.CASCADE)
 
+    def update_quantity(self, quantity):
+        self.quantity += quantity
+        self.save()
+
     def __str__(self):
         return self.name
 
 class CartItem(models.Model):
-	#Change related name for both to cart_items
     item = models.ForeignKey(
         Product, related_name="cart_items", on_delete=models.CASCADE, blank=True, null=True)
     cart = models.ForeignKey(
         Cart, related_name="cart_items", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-
 
     def __str__(self):
         return self.item.name
@@ -64,4 +72,3 @@ class CartItem(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
-        # Cart.objects.create(profile=instance.profile)
