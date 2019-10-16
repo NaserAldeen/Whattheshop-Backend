@@ -51,16 +51,43 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return validated_data
 
 
-class CartListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cart
-        fields = "__all__"
-
-
 class CartItemCreateSerializer(serializers.ModelSerializer):
+    # hash
+    item = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='name'
+    )
+
+    price = serializers.SerializerMethodField() 
+    product_id = serializers.SerializerMethodField() 
+    image = serializers.SerializerMethodField() 
     class Meta: 
         model = CartItem
         exclude = ["cart"]
+    def get_price(self,obj):
+        return obj.item.price
+
+    def get_product_id(self,obj):
+        return obj.item.id
+
+    def get_image(self,obj):
+        return self.context['request'].build_absolute_uri(obj.item.image.url)
 
 
-# class CartCreateSerializer(serializers.)
+class CartListSerializer(serializers.ModelSerializer):
+    cart_items = CartItemCreateSerializer(many=True)
+    total = serializers.SerializerMethodField()
+    class Meta:
+        model = Cart
+        fields = "__all__"
+    
+    def get_total(self, obj):
+        return sum([x.quantity*x.item.price for x in obj.cart_items.all()])
+
+
+
+        
+
+
+
