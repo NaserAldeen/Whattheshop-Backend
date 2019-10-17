@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Product, Category, Cart, CartItem
+from .models import Product, Category, Cart, CartItem, Profile
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
@@ -23,6 +23,7 @@ class ProductListSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='name'
     )
+
     class Meta:
         model = Product
         exclude = ['description', ]
@@ -39,6 +40,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='name'
     )
+
     class Meta:
         model = Product
         fields = "__all__"
@@ -68,35 +70,50 @@ class CartItemCreateSerializer(serializers.ModelSerializer):
         slug_field='name'
     )
 
-    price = serializers.SerializerMethodField() 
-    product_id = serializers.SerializerMethodField() 
-    image = serializers.SerializerMethodField() 
-    class Meta: 
+    price = serializers.SerializerMethodField()
+    product_id = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+
+    class Meta:
         model = CartItem
         exclude = ["cart"]
-    def get_price(self,obj):
+
+    def get_price(self, obj):
         return obj.item.price
 
-    def get_product_id(self,obj):
+    def get_product_id(self, obj):
         return obj.item.id
 
-    def get_image(self,obj):
+    def get_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.item.image.url)
 
 
 class CartListSerializer(serializers.ModelSerializer):
     cart_items = CartItemCreateSerializer(many=True)
     total = serializers.SerializerMethodField()
+
     class Meta:
         model = Cart
         fields = "__all__"
-    
+
     def get_total(self, obj):
         return sum([x.quantity*x.item.price for x in obj.cart_items.all()])
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    orders = serializers.SerializerMethodField()
 
-        
+    class Meta:
+        model = Profile
+        fields = "__all__"
+
+    def get_orders(self, obj):
+        history = obj.carts.filter(completed=True)
+        return CartListSerializer(history, context=self.context, many=True).data
 
 
+class CategoryListSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = Category
+        fields = "__all__"
