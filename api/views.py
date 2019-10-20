@@ -83,7 +83,7 @@ class CartItemCreateView(APIView):
             elif cart_item.exists():
                 cart_item.delete()
                 return Response("Item deleted")
-        elif quantity > 0:
+        else:
             if created:
                 cart.profile = request.user.profile
                 cart.save()
@@ -94,6 +94,9 @@ class CartItemCreateView(APIView):
             else:
                 cart_item = cart_item[0]
                 cart_item.quantity = cart_item.quantity + quantity
+                if cart_item.quantity == 0:
+                	cart_item.delete()
+                	return Response("Item deleted") 
                 cart_item.save()
             return Response(CartItemCreateSerializer(cart_item, context={'request': request}).data)
 

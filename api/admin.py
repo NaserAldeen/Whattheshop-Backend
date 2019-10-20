@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import Category, Product, Profile, Cart, CartItem, Manufacturer
 
+class ProfileAdmin(admin.ModelAdmin):
+	list_display = ('user', 'phone_number','gender')
 
 class CartItemInline(admin.TabularInline):
 	model = CartItem
@@ -15,18 +17,24 @@ class ProductInline(admin.TabularInline):
 class CartAdmin(admin.ModelAdmin):
 	list_display = ('profile','completed')
 	list_filter = ('completed', )
+	readonly_fields = ("Phone", "Name", "Email")
 	inlines = [
-		CartItemInline,
+		CartItemInline
 	]
+
+	def Phone(self, obj):
+		return obj.profile.phone_number
+	def Name(self, obj):
+		return obj.profile.user.first_name + " " + obj.profile.user.last_name
+	def Email(self,obj): 
+		return obj.profile.user.email
+
 
   
 class ProductAdmin(admin.ModelAdmin):
 	list_display = ('name', 'price', 'quantity',)
 	list_filter = ('category', 'manufacturer')
 
-
-class ProfileAdmin(admin.ModelAdmin):
-	list_display = ('user', 'phone_number','gender')
 
 
 admin.site.register(Category)
